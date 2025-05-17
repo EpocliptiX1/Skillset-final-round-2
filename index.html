@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashLearn - Data Anonymizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="pdfTextRedactor.js"></script>
+    <script src="imageBlur.js"></script>
+    <script type="module">
+        import { faker } from 'https://cdn.skypack.dev/@faker-js/faker'; window.fakeGenerators = { name: () => faker.person.fullName(), phone: () => faker.phone.number('+7 (7##) ###-##-##'), iin: () => faker.string.numeric(12) }; console.log('Fake name:', window.fakeGenerators.name());
+    </script>
+    <script type="module" src="fakerLoader.js"></script>
+    <script src="compromise.js"></script>
+    <script src="https://unpkg.com/compromise"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+    <script src="pdfjs-5.2.133-dist/build/pdf.min.js"></script>
+    <script type="module" src="pdfScan.js"></script>
+    <script src="extractedTextRedaction.js"></script>
+    <script src="chatApp.js"></script>
+    <script type="module" src="accountStore.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="exportControls.js"></script>
+
+
+</head>
+
+
+<body>
+    <!--header-->
+    <header class="Container" style="position: relative;">
+        <nav class="navbar">
+            <div class="logo-container">
+                <span class="logo"></span>
+             </div>
+            <ul class="nav-links">
+                <li><a href="#text-anonymizer">Text</a></li>
+                <li><a href="#image-anonymizer">Images</a></li>
+                <li><a href="#pdf-anonymizer">PDFs</a></li>
+               
+            </ul>
+            <div class="nav-auth">
+                <button id="exportButton" class="btn-secondary"><i class="fas fa-download"></i> Export</button>
+                <button class="btn-primary" id="account-btn"><i class="fas fa-user"></i> Account</button>
+            </div>
+            <div id="account-panel" class="account-panel hidden">
+                    <div id="account-initial">
+                        <button id="signup-btn">Sign Up</button>
+                        <button id="signin-key-btn">Sign in with Key</button>
+                    </div>
+
+                    <div id="signup-form" class="hidden">
+                        <input type="text" id="signup-username" placeholder="Username" />
+                        <input type="password" id="signup-password" placeholder="Password" />
+                        <button id="submit-signup">Submit</button>
+                    </div>
+
+                    <div id="account-logged-in" class="hidden">
+                        <p id="account-info"></p>
+                        <button id="download-key">Download Login Key</button>
+                        <button id="export-images">Export All Images</button>
+
+                        <button id="signout-btn">Sign Out</button>
+                    </div>
+                </div>
+
+        </nav>
+
+
+    </header>
+
+<!--main thing-->
+    <div id="exportPopup" style="
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  background:white;
+  border:1px solid #ccc;
+  padding:12px;
+  border-radius:8px;
+  width:300px;
+  z-index:9999;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+">
+        <p style="margin-bottom:10px;">This menu lets you export or clear all automatically saved blurred PDF/image pages stored locally in your browser.</p>
+
+        <button id="exportAllBtn">📤 Export All</button>
+        <button id="clearAllBtn" style="margin-bottom: 5px;">🗑️ Clear All</button>
+        <button id="closeTabBtn" style="width: 97%;">❌ Close</button>
+    </div>
+
+ 
+  <div class="Container">
+        <div class="hero">
+            <div class="hero-content">
+                <div>
+                    <h1>Secure Data Anonymization Tool</h1>
+                    <p class="hero-subtitle">Process sensitive information locally without cloud dependencies. GDPR compliant and privacy-focused.</p>
+                    <div class="hero-badges">
+                        <span class="badge"><i class="fas fa-lock"></i> Local Processing</span>
+                        <span class="badge"><i class="fas fa-shield-alt"></i> GDPR Ready</span>
+                        <span class="badge"><i class="fas fa-bolt"></i> AI-Powered</span>
+                    </div>
+                </div>
+                <div>
+                    <img src="img/heroImg.png" alt="https://media.discordapp.net/attachments/1279781636879421471/1373443152723050616/heroImg.png?ex=682a6e1c&is=68291c9c&hm=87efea520c8a252e284677dca99e656e3d00b487b54d2e2aeddfb4523d22f169&=&format=webp&quality=lossless&width=1058&height=675" class="hero-image">
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <main class="Container main-content">
+        <section id="text-anonymizer" class="tool-section">
+            <div class="section-header">
+                <h2>Text Anonymization</h2>
+                <p>Protect sensitive information in your text documents</p>
+            </div>
+
+            <div class="grid-container">
+                <div class="tool-card">
+                    <h3>Local Text Anonymizer (Legacy)</h3>
+                    <div class="tool-description">
+                        <p>Traditional pattern-based redaction for structured data</p>
+                    </div>
+
+                    <label for="textInput">Paste your text:</label>
+                    <textarea id="textInput" rows="10" placeholder="Enter sensitive text here..."></textarea>
+
+                    <button class="btn-anonymize" onclick="anonymizeText()">
+                        <i class="fas fa-user-secret"></i> Anonymize
+                    </button>
+
+                    <label for="output">Anonymized Output:</label>
+                    <textarea id="output" rows="10" readonly></textarea>
+                    <p id="simpleRedactCount" class="redaction-counter">Redacted items: 0</p>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>This version checks for patterns of IINs, bank cards, and proper names (both words must start with capital letters).</p>
+                    </div>
+                </div>
+
+                <div class="tool-card">
+                    <h3>Smart Text Anonymizer (Beta)</h3>
+                    <div class="tool-description">
+                        <p>AI-powered detection for unstructured text with NLP</p>
+                    </div>
+
+                    <label for="smartInput">Paste your text:</label>
+                    <textarea id="smartInput" rows="10" placeholder="Enter messy or lowercase text..."></textarea>
+
+                    <button class="btn-anonymize" onclick="smartAnonymizer()">
+                        <i class="fas fa-brain"></i> Smart Anonymize
+                    </button>
+                    <div style="margin: 10px 0;">
+                        <label>
+                            <input type="checkbox" id="enableScramble" />
+                                Scramble instead of redacting
+                        </label>
+                    </div>
+
+                    <label for="smartOutput">Anonymized Output:</label>
+                    <textarea id="smartOutput" rows="10" readonly></textarea>
+
+                    <div class="tool-actions">
+                        <button class="btn-download" onclick="downloadSmartOutput()">
+                            <i class="fas fa-file-download"></i> Download Text
+                        </button>
+                        <p id="redactCount" class="redaction-counter">Redacted items: 0</p>
+                    </div>
+
+                    <div class="tech-badge">
+                        <i class="fas fa-code"></i> Powered by <a href="https://compromise.cool" target="_blank">Compromise.js</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="image-anonymizer" class="tool-section">
+            <div class="section-header">
+                <h2><i class="fas fa-image"></i> Image Anonymization</h2>
+                <p>Detect and blur faces in images while preserving quality</p>
+            </div>
+
+            <div class="tool-card wide-card">
+                <div class="image-upload-container">
+                    <div class="upload-area">
+                        <label for="imageUpload" class="upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Choose an image or drag & drop here</span>
+                            <input type="file" id="imageUpload" accept="image/*" />
+                        </label>
+                        <div id="image-container" class="image-preview"></div>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="canvas" width="500" height="500"></canvas>
+                        <div class="canvas-controls">
+                            <button class="btn-process" onclick="downloadBlurredImage()">
+                                <i class="fas fa-file-export"></i> Download Image
+                            </button>
+                            <div class="blur-options">
+                                <label>Blur Intensity:</label>
+                                <input type="range" min="5" max="100" value="15" class="blur-slider" id="blurIntensity">
+                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pdf-anonymizer" class="tool-section ">
+            <div class="section-header ">
+                <h2><i class="fas fa-file-pdf "></i> PDF Anonymization</h2>
+                <p>Redact text and blur faces in PDF documents</p>
+            </div>
+
+            <div id="pdfScanContainer" class=" tool-card wide-card pdf-tool ">
+                <div class="pdf-upload-container ">
+                    <label for="pdfInput" class="pdf-upload-label ">
+                        <i class="fas fa-file-upload "></i>
+                        <span>Upload PDF Document</span>
+                        <input type="file" id="pdfInput" accept="application/pdf">
+                    </label>
+
+                    <div class="pdf-processing-area ">
+                        <canvas id="pdfCanvas" class="pdf-canvas"></canvas>
+                        <div class="pdf-controls">
+                          
+                        <div class="pdf-controls">
+                            <label class="btn-secondary" id="downloadFacesBtn" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="extractFaces" style="margin-right: 6px;">
+                                <i class="fas fa-portrait"></i> Extract Faces (Unblurred)
+                            </label>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="result" class="pdf-results "></div>
+            </div>
+        </section>
+    </main>
+   <div class="Container">
+        <h2> Try out the Chat version of the system</h2>
+        <section id="chatbot" class="chatbot-container">
+            <div class="chatbot-sidebar">
+                <h3>Redact Options</h3>
+                <ul>
+                <li data-action="text-legacy">Redact Text (Legacy)</li>
+                <li data-action="text-beta">Redact Text (Beta)</li>
+                <li data-action="image">Redact Image</li>
+                <li data-action="pdf">Redact PDF</li>
+                </ul>
+            </div>
+            <div class="chatbot-chat">
+                <div class="chat-display" id="chatDisplay"></div>
+                <div class="chat-input-wrapper">
+                <input type="text" id="chatInput" placeholder="Paste your text here...">
+                <input type="file" id="fileInput" accept="image/*,.pdf" hidden>
+                <button id="sendBtn">Send</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <!--footer-->
+    <footer class=" site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+            <h4>About FlashLearn</h4>
+            <ul>
+                <li><a href="#">What Is Data Anonymization?</a></li>
+                <li><a href="#">How It Works</a></li>
+                <li><a href="#">Roadmap</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+            </ul>
+            </div>
+
+            <div class="footer-column">
+            <h4>Features</h4>
+            <ul>
+                <li><a href="#text-anonymizer">Text Redaction</a></li>
+                <li><a href="#image-anonymizer">Image Blur</a></li>
+                <li><a href="#pdf-anonymizer">PDF Anonymizer</a></li>
+                <li><a href="#export">Export & Backup</a></li>
+            </ul>
+            </div>
+
+            <div class="footer-column">
+            <h4>Developers</h4>
+            <ul>
+                <li><a href="#">API Docs</a></li>
+                <li><a href="#">GitHub Repo</a></li>
+                <li><a href="#">SDK & CLI</a></li>
+                <li><a href="#">Community Forum</a></li>
+            </ul>
+            </div>
+
+            <div class="footer-column">
+            <h4>Connect</h4>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+            </div>
+            <div class="newsletter">
+                <p>Stay updated on new features</p>
+                <input type="email" placeholder="Your email">
+                <button class="btn-subscribe">Subscribe</button>
+            </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2025 FlashLearn Data Suite. All rights reserved.</p>
+        </div>
+</footer>
+
+</body>
+
+</html>
