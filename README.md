@@ -1,3 +1,7 @@
+ONLY ENGLISH NAMES ARE SUPPORTED, example you can use for the text redaction:
+My name is Eleanor Vance and my IIN is 030515350298.   My friend jane doe has an account number 4400430056237890.   Another bank card is 53999912345678901234, owned by John doe.   IIN for testing: 991231456789.
+
+
 The repo contains my presentation, the video (1min one) and the whole project.
 
 here is another small overview :
